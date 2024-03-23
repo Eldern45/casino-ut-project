@@ -1,20 +1,9 @@
-import java.io.Console;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 
 public class Main {
-        public static void main(String[] args) {
-        ConsoleInterface consoleInterface = new ConsoleInterface();
-        consoleInterface.run();
-
-
-//        Console console = System.console();
-//        if (console == null) {
-//            System.out.println("Консоль не доступна");
-//            return;
-//        }
-//        char[] passwordArray = console.readPassword("Введите ваш пароль: ");
-//        for (char c : passwordArray) {
-//            System.out.print(c);
-//        }
+    public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
+        new ConsoleInterface().run();
 
     }
 }
