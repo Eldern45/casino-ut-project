@@ -56,4 +56,13 @@ public class AccountManager {
         }
         return null;
     }
+
+    public boolean isLoginAvailable(String username) {
+        for (Account account : accounts) {
+            if (account.getUsername().equals(username)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

@@ -1,2 +1,2 @@
-lolo;hhh;1234;50.0
+lolo;testtest;1111;50.0
 eldern@gmail.com;Eldern;1234;50.0

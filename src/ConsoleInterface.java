@@ -14,14 +14,13 @@ public class ConsoleInterface {
     public ConsoleInterface() throws FileNotFoundException {
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
             public void eventDispatched(AWTEvent event) {
-                if (event instanceof WindowEvent) {
-                    WindowEvent we = (WindowEvent) event;
+                if (event instanceof WindowEvent we) {
                     if (we.getID() == WindowEvent.WINDOW_CLOSING) {
                         ((Window) event.getSource()).dispose();
                         try {
                             accountManager.saveAccounts();
                         } catch (UnsupportedEncodingException | FileNotFoundException e) {
-                            throw new RuntimeException(e);
+                            JOptionPane.showMessageDialog(null, "Viga kontode salvestamisel!", "Kasiino", JOptionPane.ERROR_MESSAGE);
                         }
                         System.exit(0);
                     }
@@ -69,9 +68,9 @@ public class ConsoleInterface {
             JPasswordField jPasswordField = new JPasswordField(10);
             jPanel.add(new JLabel("Looge parooli: "));
             jPanel.add(jPasswordField);
-            int trueFalse = JOptionPane.showConfirmDialog(null, jPanel, "Konto loomine",
+            int result = JOptionPane.showConfirmDialog(null, jPanel, "Konto loomine",
                     JOptionPane.OK_CANCEL_OPTION);
-            if (trueFalse == JOptionPane.CANCEL_OPTION) break;
+            if (result == JOptionPane.CANCEL_OPTION) break;
             String password = new String(jPasswordField.getPassword());
 
             String[] options1 = {"Jah", "Ei, Sisesta uuesti", "Tagasi algekraanisse"};
@@ -100,8 +99,8 @@ public class ConsoleInterface {
             JPasswordField jPasswordField = new JPasswordField(10);
             jPanel.add(new JLabel("Sisestage parool:"));
             jPanel.add(jPasswordField);
-            int trueFalse = JOptionPane.showConfirmDialog(null, jPanel, "Logimine", JOptionPane.OK_CANCEL_OPTION);
-            if (trueFalse == JOptionPane.CANCEL_OPTION) break;
+            int result = JOptionPane.showConfirmDialog(null, jPanel, "Logimine", JOptionPane.OK_CANCEL_OPTION);
+            if (result == JOptionPane.CANCEL_OPTION) break;
             String password = new String(jPasswordField.getPassword());
 
             Account account = accountManager.findAccount(email, password);
@@ -128,13 +127,72 @@ public class ConsoleInterface {
                                     + " eurot" , "Kasiino", JOptionPane.INFORMATION_MESSAGE);
                     break;
                 case 1:
-//                TODO: changeLogin(account);
+                    changeLogin(account);
                     break;
                 case 2:
-//                TODO: changePassword(account);
+                    changePassword(account);
                     break;
                 default:
                     running = false;
+            }
+        }
+    }
+
+    private void changeLogin(Account account) {
+        while (true) {
+            String newLogin = JOptionPane.showInputDialog(null, "Sisestage uus kasutajanimi:", "Kasutajanime muutmine", JOptionPane.QUESTION_MESSAGE);
+            if (newLogin == null) break;
+
+            if (accountManager.isLoginAvailable(newLogin)) {
+                account.setUsername(newLogin);
+                try {
+                    accountManager.saveAccounts();
+                    JOptionPane.showMessageDialog(null, "Kasutajanimi edukalt muudetud!", "Kasutajanime muutmine", JOptionPane.INFORMATION_MESSAGE);
+                    break;
+                } catch (FileNotFoundException | UnsupportedEncodingException e) {
+                    JOptionPane.showMessageDialog(null, "Viga kasutajanime muutmisel!", "Kasutajanime muutmine", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Kasutajanimi on juba võetud!", "Kasutajanime muutmine", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void changePassword(Account account) {
+        while (true) {
+            JPanel panel = new JPanel();
+            JPasswordField oldPasswordField = new JPasswordField(10);
+            JPasswordField newPasswordField = new JPasswordField(10);
+            JPasswordField confirmPasswordField = new JPasswordField(10);
+            panel.add(new JLabel("Vana parool:"));
+            panel.add(oldPasswordField);
+            panel.add(new JLabel("Uus parool:"));
+            panel.add(newPasswordField);
+            panel.add(new JLabel("Kinnita uus parool:"));
+            panel.add(confirmPasswordField);
+
+            int result = JOptionPane.showConfirmDialog(null, panel, "Parooli muutmine", JOptionPane.OK_CANCEL_OPTION);
+            if (result == JOptionPane.CANCEL_OPTION) break;
+
+            String oldPassword = new String(oldPasswordField.getPassword());
+            String newPassword = new String(newPasswordField.getPassword());
+            String confirmPassword = new String(confirmPasswordField.getPassword());
+
+            if (account.getPassword().equals(oldPassword)) {
+                if (newPassword.equals(confirmPassword)) {
+                    account.setPassword(newPassword);
+                    try {
+                        accountManager.saveAccounts();
+                        JOptionPane.showMessageDialog(null, "Parool edukalt muudetud!", "Parooli muutmine", JOptionPane.INFORMATION_MESSAGE);
+                        break;
+                    } catch (FileNotFoundException | UnsupportedEncodingException e) {
+                        JOptionPane.showMessageDialog(null, "Viga parooli muutmisel!", "Parooli muutmine", JOptionPane.ERROR_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Uued paroolid ei ühti!", "Parooli muutmine", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Vale vana parool!", "Parooli muutmine", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
