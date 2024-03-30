@@ -22,10 +22,10 @@ public class AccountManager {
         saveAccounts();
     }
 
-    private void saveAccounts() throws FileNotFoundException, UnsupportedEncodingException {
+    public void saveAccounts() throws FileNotFoundException, UnsupportedEncodingException {
         try (PrintWriter pw = new PrintWriter(file, "UTF-8")) {
             for (Account account : accounts) {
-                pw.println(account.getEmail() + "; " + account.getUsername() + "; " + account.getPassword() + "; " +
+                pw.println(account.getEmail() + ";" + account.getUsername() + ";" + account.getPassword() + ";" +
                         account.getMoney());
             }
         }
@@ -46,5 +46,23 @@ public class AccountManager {
                 accounts.add(new Account(data[0], data[1], data[2], Double.parseDouble(data[3])));
             }
         }
+    }
+
+    public Account findAccount(String email, String password) {
+        for (Account account : accounts) {
+            if (account.getEmail().equals(email) && account.getPassword().equals(password)) {
+                return account;
+            }
+        }
+        return null;
+    }
+
+    public boolean isLoginAvailable(String username) {
+        for (Account account : accounts) {
+            if (account.getUsername().equals(username)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
