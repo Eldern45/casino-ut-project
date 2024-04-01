@@ -6,4 +6,3 @@ public class Main {
         new ConsoleInterface().run();
     }
 }
-//trweytdfqwjy
