@@ -117,7 +117,7 @@ public class ConsoleInterface {
     private void showMenu(Account account) {
         boolean running = true;
         while (running) {
-            String[] options = {"Näita jääki", "Muuda kasutajanime", "Muuda parooli", "Logi välja"};
+            String[] options = {"Näita jääki", "Muuda kasutajanime", "Muuda parooli", "Mine Mängima", "Logi välja"};
             int choice = JOptionPane.showOptionDialog(null, "Valige toiming:", "Menüü",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
@@ -131,6 +131,9 @@ public class ConsoleInterface {
                     break;
                 case 2:
                     changePassword(account);
+                    break;
+                case 3:
+                    gameMenu(account);
                     break;
                 default:
                     running = false;
@@ -195,5 +198,9 @@ public class ConsoleInterface {
                 JOptionPane.showMessageDialog(null, "Vale vana parool!", "Parooli muutmine", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    private void gameMenu(Account account) {
+        
     }
 }
