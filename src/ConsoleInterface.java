@@ -1,17 +1,19 @@
 import javax.swing.*;
-
 import java.awt.Window;
 import java.awt.Toolkit;
 import java.awt.AWTEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.AWTEventListener;
-
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 
 public class ConsoleInterface {
-    AccountManager accountManager= new AccountManager();
+    private AccountManager accountManager;
+    private Blackjack blackjack;
+
     public ConsoleInterface() throws FileNotFoundException {
+        accountManager = new AccountManager();
+        blackjack = new Blackjack(accountManager);
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
             public void eventDispatched(AWTEvent event) {
                 if (event instanceof WindowEvent we) {
@@ -117,7 +119,7 @@ public class ConsoleInterface {
     private void showMenu(Account account) {
         boolean running = true;
         while (running) {
-            String[] options = {"Näita jääki", "Muuda kasutajanime", "Muuda parooli","Mängige Ruletti", "Logi välja"};
+            String[] options = {"Näita jääki", "Muuda kasutajanime", "Muuda parooli","Mängi Ruletti","Mängi Blackjacki",  "Logi välja"};
             int choice = JOptionPane.showOptionDialog(null, "Valige toiming:", "Menüü",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
@@ -134,6 +136,9 @@ public class ConsoleInterface {
                     break;
                 case 3:
                     MängiRuletti(account);
+                    break;
+                case 4:
+                    blackjack.MängiBlackjack(account);
                     break;
                 default:
                     running = false;
@@ -209,4 +214,7 @@ public class ConsoleInterface {
         Rulett  rulett =  new Rulett(account, accountManager);
         rulett.MängiRuletti();
     }
+
+
+
 }

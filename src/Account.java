@@ -3,6 +3,7 @@ public class Account {
     private String username;
     private String password;
     private double money;
+    private double bet;
 
     public Account(String email, String username, String password, double money) {
         this.email = email;
@@ -10,6 +11,7 @@ public class Account {
         this.password = password;
         this.money = money;
     }
+
 
     public String getUsername() {
         return username;
@@ -41,6 +43,18 @@ public class Account {
 
     public void setMoney(double money) {
         this.money = money;
+    }
+
+    public void updateMoney(double amount) {
+        money += amount;
+    }
+
+    public double getBet() {
+        return bet;
+    }
+
+    public void setBet(double bet) {
+        this.bet = bet;
     }
 
     @Override
