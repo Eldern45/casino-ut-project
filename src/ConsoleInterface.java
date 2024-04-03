@@ -121,7 +121,7 @@ public class ConsoleInterface {
     private void showMenu(Account account) {
         boolean running = true;
         while (running) {
-            String[] options = {"Näita jääki", "Muuda kasutajanime", "Muuda parooli","Mängi Ruletti","Mängi Blackjacki", "Mängi täringemängi",  "Logi välja"};
+            String[] options = {"Näita jääki", "Muuda kasutajanime", "Muuda parooli","Mine mängima", "Logi välja"};
             int choice = JOptionPane.showOptionDialog(null, "Valige toiming:", "Menüü",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
@@ -137,20 +137,39 @@ public class ConsoleInterface {
                     changePassword(account);
                     break;
                 case 3:
-                    MängiRuletti(account);
-                    break;
-                case 4:
-                    blackjack.MängiBlackjack(account);
-                    break;
-                case 5:
-                    playDice(accountManager);
-                    break;
+                    showGameMenu(account);
                 default:
                     JOptionPane.showMessageDialog(null, "Head päevajätku!");
                     running = false;
             }
         }
     }
+
+    public void showGameMenu(Account account) {
+        boolean running = true;
+        while (running) {
+            String[] options = {"Tagasi menüüsse", "Rulett", "Blackjack", "Täringud"};
+            int choice = JOptionPane.showOptionDialog(null, "Valige mäng:", "Mängimine",
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+            switch (choice) {
+                case 0:
+                    showMenu(account);
+                    break;
+                case 1:
+                    MängiRuletti(account);
+                    break;
+                case 2:
+                    blackjack.MängiBlackjack(account);
+                    break;
+                case 3:
+                    playDice(accountManager);
+                default:
+                    running = false;
+            }
+        }
+    }
+
 
     private void changeLogin(Account account) {
         while (true) {
@@ -213,63 +232,125 @@ public class ConsoleInterface {
 
     private void MängiRuletti(Account account){
 
+        // Kontrollime, kas kasutajakontot on olemas
         if (account == null) {
             JOptionPane.showMessageDialog(null, "Teil peab olema konto, et mängida ruletti!", "Rulett", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        // Loome Rulett objekti, kasutades antud kasutajat ja konto haldurit
         Rulett  rulett =  new Rulett(account, accountManager);
+
+        // Käivitame Ruleti mängu
         rulett.MängiRuletti();
     }
+
 
     private int getBetAmount() {
         int bet;
         try {
+            // Kasutaja sisestab panuse summa dialoogiboksi abil.
             String betString = JOptionPane.showInputDialog(null, "Sisestage panussumma:", "Panus", JOptionPane.QUESTION_MESSAGE);
             bet = Integer.parseInt(betString);
+            // Kontrollitakse, kas sisestatud panus on null või negatiivne. Kui on, siis tagastatakse 0.
             if (bet <= 0) {
                 return 0;
             }
         } catch (NumberFormatException e) {
+            // Kui sisestatakse midagi muud peale numbri, siis tagastatakse 0.
             return 0;
         }
+        // Tagastatakse sisestatud panuse summa.
         return bet;
     }
+
 
     private void playDice(AccountManager accountManager) {
         currentAccount = accountManager.getCurrentAccount();
         if (currentAccount == null) {
+            // Kontrollime, kas praegune konto on sisse logitud, vastasel juhul väljastame veateate ja lõpetame meetodi.
             JOptionPane.showMessageDialog(null, "Te pole sisse loginud!", "Viga", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        int bet = getBetAmount();
-        if (bet == 0) {
-            JOptionPane.showMessageDialog(null, "Vigane panus! Mäng lõpetatakse.", "Täringud", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        int playerRoll = Dice.roll();
-        int dealerRoll = Dice.roll();
-
-        JOptionPane.showMessageDialog(null, "Teie veeretus: " + playerRoll + "\nDiileri veeretus: " + dealerRoll, "Täringud", JOptionPane.INFORMATION_MESSAGE);
-
-        if (playerRoll > dealerRoll) {
-            JOptionPane.showMessageDialog(null, "Võitsid! Palju õnne!", "Täringud", JOptionPane.INFORMATION_MESSAGE);
-            try {
-                accountManager.updateMoney(currentAccount.getEmail(), bet);
-            } catch (FileNotFoundException | UnsupportedEncodingException e) {
-                JOptionPane.showMessageDialog(null, "Konto saldo värskendamise viga!", "Täringud", JOptionPane.ERROR_MESSAGE);
+        boolean continuePlaying = true;
+        while (continuePlaying) {
+            int bet = getBetAmount();
+            if (bet == 0) {
+                // Kontrollime, kas panus on korrektne, vastasel juhul väljastame veateate ja lõpetame meetodi.
+                JOptionPane.showMessageDialog(null, "Vigane panus! Mäng lõpetatakse.", "Täringud", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-        } else if (playerRoll < dealerRoll) {
-            JOptionPane.showMessageDialog(null, "Kaotasid! Proovi uuesti!", "Täringud", JOptionPane.ERROR_MESSAGE);
-            try {
-                accountManager.updateMoney(currentAccount.getEmail(), -bet);
-            } catch (FileNotFoundException | UnsupportedEncodingException e) {
-                JOptionPane.showMessageDialog(null, "Konto saldo värskendamise viga!", "Täringud", JOptionPane.ERROR_MESSAGE);
+
+            int userBetNumber = getUserBetNumber();
+
+            int playerRoll = Dice.roll();
+            int dealerRoll = Dice.roll();
+
+            // Väljastame mängija ja diileri veeretuse tulemuse.
+            JOptionPane.showMessageDialog(null, "Teie veeretus: " + playerRoll + "\nDiileri veeretus: " + dealerRoll, "Täringud", JOptionPane.INFORMATION_MESSAGE);
+
+            if (userBetNumber == dealerRoll) {
+                // Kui mängija arvas numbri õigesti, väljastame võiduteate ja värskendame mängija kontot.
+                JOptionPane.showMessageDialog(null, "Võitsid! Palju õnne!", "Täringud", JOptionPane.INFORMATION_MESSAGE);
+                try {
+                    accountManager.updateMoney(currentAccount.getEmail(), bet);
+                } catch (FileNotFoundException | UnsupportedEncodingException e) {
+                    JOptionPane.showMessageDialog(null, "Konto saldo värskendamise viga!", "Täringud", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                // Kui mängija ei arvanud numbri õigesti, väljastame kaotusteate ja värskendame mängija kontot.
+                JOptionPane.showMessageDialog(null, "Kaotasid! Proovi uuesti!", "Täringud", JOptionPane.ERROR_MESSAGE);
+                try {
+                    accountManager.updateMoney(currentAccount.getEmail(), -bet);
+                } catch (FileNotFoundException | UnsupportedEncodingException e) {
+                    JOptionPane.showMessageDialog(null, "Konto saldo värskendamise viga!", "Täringud", JOptionPane.ERROR_MESSAGE);
+                }
             }
-        } else {
-            JOptionPane.showMessageDialog(null, "Viik! Sinu panus tagastatakse.", "Täringud", JOptionPane.INFORMATION_MESSAGE);
+
+            // Küsime kasutajalt, kas nad soovivad mängu jätkata.
+            int choice = JOptionPane.showConfirmDialog(null, "Kas soovite jätkata mängu?", "Täringud", JOptionPane.YES_NO_OPTION);
+            if (choice == JOptionPane.NO_OPTION) {
+                // Kui kasutaja valib "Ei", peatame mängu.
+                continuePlaying = false;
+            }
         }
+        // Pärast mängu lõppu kuvame peamenüü praegusele kasutajale.
+        showGameMenu(currentAccount);
     }
+
+    private int getUserBetNumber() {
+        int betNumber;
+        while (true) {
+            try {
+                String betNumberString = JOptionPane.showInputDialog(null, "Sisestage oma ennustatav number (1-6):", "Panus", JOptionPane.QUESTION_MESSAGE);
+
+                // Kontrollime, kas kasutaja katkestas tegevuse või tühjendas sisestusakna
+                if (betNumberString == null) {
+                    return 0;
+                }
+
+                // Teisendame sisestatud stringi arvuks
+                betNumber = Integer.parseInt(betNumberString);
+
+                // Kontrollime, kas sisestatud number on sobivas vahemikus
+                if (betNumber < 1 || betNumber > 6) {
+                    JOptionPane.showMessageDialog(null, "Palun sisestage number vahemikus 1 kuni 6!", "Vigane sisend", JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+
+                // Kui sisestatud number on sobivas vahemikus, lõpetame tsükli
+                break;
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Vigane sisend! Palun sisestage ainult numbreid.", "Vigane sisend", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        return betNumber;
+    }
+
+
+
+
+
 
 }

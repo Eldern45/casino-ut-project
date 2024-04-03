@@ -1,4 +1,4 @@
 lolo;testtest;1111;50.0
 eldern@gmail.com;Eldern;1234;50.0
-jessenia@gmail.com;Tsekman;54321;79680.0
+jessenia@gmail.com;Tsekman;54321;637221.0
 anton@voronkoff.ru;Tsar;select from 1 where 1=1;0.0
