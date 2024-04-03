@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class AccountManager {
+    private Account currentAccount;
     List<Account> accounts;
     private File file = new File("src/accounts.txt");
 
@@ -65,4 +66,26 @@ public class AccountManager {
         }
         return true;
     }
+
+    public void updateMoney(String email, double amount) throws FileNotFoundException, UnsupportedEncodingException {
+        for (Account account : accounts) {
+            if (account.getEmail().equals(email)) {
+                account.setMoney(account.getMoney() + amount);
+                saveAccounts();
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Määratud e-posti aadressiga kontot ei leitud.");
+    }
+
+    public void setCurrentAccount(Account account) {
+        this.currentAccount = account;
+    }
+
+    public Account getCurrentAccount() {
+        return currentAccount;
+    }
+
+
+
 }

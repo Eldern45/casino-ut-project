@@ -9,6 +9,7 @@ public class Blackjack {
     private Deck deck;
     private Hand playerHand;
     private Hand dealerHand;
+    private int currentBet;
 
     public Blackjack(AccountManager accountManager) {
         this.accountManager = accountManager;
@@ -26,6 +27,14 @@ public class Blackjack {
             JOptionPane.showMessageDialog(null, "Kaardipakk on tühi! Mäng ei ole võimalik.", "Blackjack", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        int bet = getBetAmount();
+        if (bet == 0) {
+            JOptionPane.showMessageDialog(null, "Kahtetu panus! Mäng katkestatud.", "Blackjack", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        this.currentBet = bet;
+
 
         Deck deck = new Deck();
         deck.shuffle();
@@ -95,5 +104,22 @@ public class Blackjack {
         }
     }
 
+    public void setBet(int bet) {
+        this.currentBet = bet;
+    }
+
+    private int getBetAmount() {
+        int bet;
+        try {
+            String betString = JOptionPane.showInputDialog(null, "Sisestage panuse summa:", "Panus", JOptionPane.QUESTION_MESSAGE);
+            bet = Integer.parseInt(betString);
+            if (bet <= 0) {
+                return 0;
+            }
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+        return bet;
+    }
 
 }

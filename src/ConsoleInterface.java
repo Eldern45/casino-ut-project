@@ -10,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 public class ConsoleInterface {
     private AccountManager accountManager;
     private Blackjack blackjack;
+    private Account currentAccount;
 
     public ConsoleInterface() throws FileNotFoundException {
         accountManager = new AccountManager();
@@ -107,6 +108,7 @@ public class ConsoleInterface {
 
             Account account = accountManager.findAccount(email, password);
             if (account != null) {
+                accountManager.setCurrentAccount(account);
                 JOptionPane.showMessageDialog(null, "Tere tulemast, " + account.getUsername() + "!", "Logimine", JOptionPane.INFORMATION_MESSAGE);
                 return account;
             } else {
@@ -119,7 +121,7 @@ public class ConsoleInterface {
     private void showMenu(Account account) {
         boolean running = true;
         while (running) {
-            String[] options = {"Näita jääki", "Muuda kasutajanime", "Muuda parooli","Mängi Ruletti","Mängi Blackjacki",  "Logi välja"};
+            String[] options = {"Näita jääki", "Muuda kasutajanime", "Muuda parooli","Mängi Ruletti","Mängi Blackjacki", "Mängi täringemängi",  "Logi välja"};
             int choice = JOptionPane.showOptionDialog(null, "Valige toiming:", "Menüü",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
@@ -140,7 +142,11 @@ public class ConsoleInterface {
                 case 4:
                     blackjack.MängiBlackjack(account);
                     break;
+                case 5:
+                    playDice(accountManager);
+                    break;
                 default:
+                    JOptionPane.showMessageDialog(null, "Head päevajätku!");
                     running = false;
             }
         }
@@ -215,6 +221,55 @@ public class ConsoleInterface {
         rulett.MängiRuletti();
     }
 
+    private int getBetAmount() {
+        int bet;
+        try {
+            String betString = JOptionPane.showInputDialog(null, "Sisestage panussumma:", "Panus", JOptionPane.QUESTION_MESSAGE);
+            bet = Integer.parseInt(betString);
+            if (bet <= 0) {
+                return 0;
+            }
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+        return bet;
+    }
 
+    private void playDice(AccountManager accountManager) {
+        currentAccount = accountManager.getCurrentAccount();
+        if (currentAccount == null) {
+            JOptionPane.showMessageDialog(null, "Te pole sisse loginud!", "Viga", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int bet = getBetAmount();
+        if (bet == 0) {
+            JOptionPane.showMessageDialog(null, "Vigane panus! Mäng lõpetatakse.", "Täringud", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int playerRoll = Dice.roll();
+        int dealerRoll = Dice.roll();
+
+        JOptionPane.showMessageDialog(null, "Teie veeretus: " + playerRoll + "\nDiileri veeretus: " + dealerRoll, "Täringud", JOptionPane.INFORMATION_MESSAGE);
+
+        if (playerRoll > dealerRoll) {
+            JOptionPane.showMessageDialog(null, "Võitsid! Palju õnne!", "Täringud", JOptionPane.INFORMATION_MESSAGE);
+            try {
+                accountManager.updateMoney(currentAccount.getEmail(), bet);
+            } catch (FileNotFoundException | UnsupportedEncodingException e) {
+                JOptionPane.showMessageDialog(null, "Konto saldo värskendamise viga!", "Täringud", JOptionPane.ERROR_MESSAGE);
+            }
+        } else if (playerRoll < dealerRoll) {
+            JOptionPane.showMessageDialog(null, "Kaotasid! Proovi uuesti!", "Täringud", JOptionPane.ERROR_MESSAGE);
+            try {
+                accountManager.updateMoney(currentAccount.getEmail(), -bet);
+            } catch (FileNotFoundException | UnsupportedEncodingException e) {
+                JOptionPane.showMessageDialog(null, "Konto saldo värskendamise viga!", "Täringud", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Viik! Sinu panus tagastatakse.", "Täringud", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
 
 }
