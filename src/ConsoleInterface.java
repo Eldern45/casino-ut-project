@@ -138,8 +138,8 @@ public class ConsoleInterface {
                     break;
                 case 3:
                     showGameMenu(account);
+                    break;
                 default:
-                    JOptionPane.showMessageDialog(null, "Head päevajätku!");
                     running = false;
             }
         }
@@ -153,9 +153,6 @@ public class ConsoleInterface {
                     JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
             switch (choice) {
-                case 0:
-                    showMenu(account);
-                    break;
                 case 1:
                     MängiRuletti(account);
                     break;
