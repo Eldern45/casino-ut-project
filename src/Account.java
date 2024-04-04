@@ -1,3 +1,5 @@
+
+//Konto klass.
 public class Account {
     private String email;
     private String username;
@@ -31,25 +33,11 @@ public class Account {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public double getMoney() {
         return money;
     }
 
     public void setMoney(double money) {
         this.money = money;
-    }
-
-    @Override
-    public String toString() {
-        return "Account{" +
-                "email='" + email + '\'' +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", money=" + money +
-                '}';
     }
 }

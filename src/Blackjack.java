@@ -1,0 +1,136 @@
+import javax.swing.*;
+import javax.swing.JOptionPane;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+
+
+public class Blackjack extends ConsoleInterface {
+    // Klassimuutujate deklareerimine
+    private Deck deck;
+    private Hand playerHand;
+    private Hand dealerHand;
+
+    // Konstruktor initsialiseerib Blackjacki mängu kontohalduri eksemplariga
+    public Blackjack() throws FileNotFoundException {
+        super();
+        this.deck = new Deck();
+        this.playerHand = new Hand();
+        this.dealerHand = new Hand();
+    }
+
+    // Blackjacki mängu mängimise meetod
+    public void MängiBlackjack(Account account) throws FileNotFoundException, UnsupportedEncodingException {
+
+        Account currentAccount = super.accountManager.findAccount(account.getEmail(), account.getPassword());
+
+        // Kontrollige, kas tekk on tühi
+        if (deck.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Kaardipakk on tühi! Mängu ei saa mängida.", "Blackjack", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Paluge mängijal panus teha
+        double bet = getBetAmount(account);
+        if (bet == -1) return;
+        if (bet == 0) {
+            JOptionPane.showMessageDialog(null, "Kehtetu panus! Mäng katkestati.", "Blackjack", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Initsialiseerige uus teki ja segage see
+        Deck deck = new Deck();
+        deck.shuffle();
+
+        // Initsialiseerige mängija ja diileri käed
+        Hand playerHand = new Hand();
+        Hand dealerHand = new Hand();
+
+        // Jaga kaardid mängijale ja diilerile
+        playerHand.addCard(deck.dealCard());
+        playerHand.addCard(deck.dealCard());
+        dealerHand.addCard(deck.dealCard());
+        dealerHand.addCard(deck.dealCard());
+
+        // Kuva mängija ja diileri algkaardid
+        JOptionPane.showMessageDialog(null, "Teie kaardid:\n" + playerHand + "\nTeie kogusumma: " + playerHand.getHandValue()
+                + "\n\nDilleri kaardid:\n" + dealerHand.getHand().get(0), "Blackjack", JOptionPane.INFORMATION_MESSAGE);
+
+        // Kontrollige, kas mängijal on Blackjack
+        if (playerHand.isBlackjack()) {
+            JOptionPane.showMessageDialog(null, "Sul on Blackjack! Võidad automaatselt!", "Blackjack",
+                    JOptionPane.INFORMATION_MESSAGE);
+            currentAccount.setMoney(currentAccount.getMoney() + bet);
+            super.accountManager.saveAccounts();
+            return;
+        }
+
+        // See silmus võimaldab mängijal jätkata kaartide tõmbamist seni, kuni nende käe väärtus on väiksem kui 21.
+        while (playerHand.getHandValue() < 21) {
+            int option = JOptionPane.showConfirmDialog(null, "Kas soovid jätkata kaartide võtmisega?", "Blackjack",
+                    JOptionPane.YES_NO_OPTION);
+            if (option == JOptionPane.YES_OPTION) {
+                playerHand.addCard(deck.dealCard());
+                JOptionPane.showMessageDialog(null, "Sinu kaardid:\n" + playerHand + "\nSinu summa: " + playerHand.getHandValue(),
+                        "Blackjack", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                break;
+            }
+        }
+
+        // Kui mängija käe väärtus ületab 21, kaotab ta mängu.
+        if (playerHand.getHandValue() > 21) {
+            JOptionPane.showMessageDialog(null, "Sinu summa on üle 21! Kaotad!", "Blackjack",
+                    JOptionPane.ERROR_MESSAGE);
+
+            currentAccount.setMoney(currentAccount.getMoney() - bet);
+            super.accountManager.saveAccounts();
+            return;
+        }
+
+        // Diiler tõmbab kaarte, kuni nende käe väärtus jõuab 17-ni või rohkem.
+
+        while (dealerHand.getHandValue() < 17) {
+            dealerHand.addCard(deck.dealCard());
+        }
+
+        // Kuvage mängija ja diileri käed koos nende vastavate kogusummadega.
+        JOptionPane.showMessageDialog(null, "Sinu kaardid:\n" + playerHand + "\nSinu summa: " + playerHand.getHandValue()
+                        + "\n\nDiileri kaardid:\n" + dealerHand + "\nDiileri summa: " + dealerHand.getHandValue(), "Blackjack",
+                JOptionPane.INFORMATION_MESSAGE);
+
+        // Kui diileri käe väärtus ületab 21, võidab mängija.
+        if (dealerHand.getHandValue() > 21) {
+            JOptionPane.showMessageDialog(null, "Diileril on summa üle 21! Võidad!", "Blackjack",
+                    JOptionPane.INFORMATION_MESSAGE);
+            currentAccount.setMoney(currentAccount.getMoney() + bet);
+            super.accountManager.saveAccounts();
+            return;
+        }
+
+
+        // Võitja väljaselgitamiseks võrrelge mängija ja diileri käte väärtusi.
+        if (playerHand.getHandValue() > dealerHand.getHandValue()) {
+            JOptionPane.showMessageDialog(null, "Võidad!", "Blackjack", JOptionPane.INFORMATION_MESSAGE);
+            currentAccount.setMoney(currentAccount.getMoney() + bet);
+            super.accountManager.saveAccounts();
+        } else if (playerHand.getHandValue() < dealerHand.getHandValue()) {
+            JOptionPane.showMessageDialog(null, "Kaotad!", "Blackjack", JOptionPane.ERROR_MESSAGE);
+            currentAccount.setMoney(currentAccount.getMoney() - bet);
+            super.accountManager.saveAccounts();
+        } else {
+            JOptionPane.showMessageDialog(null, "Viik!", "Blackjack", JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        // Küsi mängijalt, kas ta soovib mängimist jätkata.
+        while (true) {
+            int option = JOptionPane.showConfirmDialog(null, "Kas soovid jätkata mängimist?", "Blackjack", JOptionPane.YES_NO_OPTION);
+            if (option == JOptionPane.YES_OPTION) {
+                MängiBlackjack(account);
+            } else {
+                break;
+            }
+        }
+    }
+
+
+}
