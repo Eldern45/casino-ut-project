@@ -336,7 +336,7 @@ public class ConsoleInterface {
         Random random = new Random(); // Juhuslik objekt juhuslike arvude genereerimiseks.
         // Meetod täringuveeretamise simuleerimiseks.
 
-        // Loob juhusliku arvu vahemikus 1 kuni NUM_SIDES (kaasa arvatud) ja tagastab selle.
+        // Loob juhusliku arvu vahemikus 1 kuni numSides (kaasa arvatud) ja tagastab selle.
         return random.nextInt(numSides) + 1;
     }
 }
