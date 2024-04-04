@@ -33,6 +33,8 @@ public class ConsoleInterface {
             }
         }, AWTEvent.WINDOW_EVENT_MASK);
     }
+
+    //Peamine meetod, mis köivotab programmi
     public void run() throws FileNotFoundException, UnsupportedEncodingException {
         JOptionPane.showMessageDialog(null, "Tere tulemast kasiinosse!", "Kasiino",
                 JOptionPane.INFORMATION_MESSAGE);
